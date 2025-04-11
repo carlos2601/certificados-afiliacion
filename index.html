@@ -120,7 +120,34 @@
 </head>
 <body>
 
-  <h2 style="text-align:center;">Certificado de Afiliación</h2>
+<div id="login" style="background: white; padding: 30px 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; margin: 30px auto;">
+  <h2 style="margin-bottom: 20px;">Iniciar Sesión</h2>
+  <input type="text" id="usuario" placeholder="Usuario autorizado" style="width:100%; padding:10px 12px; margin:10px 0; border:1px solid #ccc; border-radius:6px; font-size:14px;"><br>
+  <input type="password" id="clave" placeholder="Contraseña" style="width:100%; padding:10px 12px; margin:10px 0; border:1px solid #ccc; border-radius:6px; font-size:14px;"><br>
+  <button onclick="verificarAcceso()" style="background-color:#005baa; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-size:14px;">Ingresar</button>
+</div>
+
+<script>
+  const usuariosAutorizados = ["Liliana Londoño", "Carlos Quiñones"];
+  const claveCorrecta = "Linda0127";
+
+  function verificarAcceso() {
+    const usuario = document.getElementById("usuario").value.trim();
+    const clave = document.getElementById("clave").value.trim();
+
+    if (usuariosAutorizados.includes(usuario) && clave === claveCorrecta) {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("formulario").style.display = "block";
+    } else {
+      alert("❌ Usuario o contraseña incorrectos.");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("formulario").style.display = "none";
+  });
+</script>
+
 
   <form id="formulario" class="formulario">
     <h2 style="text-align:center;">Editar documento</h2>
