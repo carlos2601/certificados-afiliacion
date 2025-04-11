@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Certificado de Afiliación</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .formulario {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin: 30px auto 20px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .formulario input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .formulario button {
+      background-color: #005baa;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .formulario button:hover {
+      background-color: #004080;
+    }
+
+    #boton-descarga {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+      display: none;
+      margin: 20px auto;
+    }
+
+    #boton-descarga:hover {
+      background-color: #218838;
+    }
+
+    #contenido-certificado {
+      width: 21cm;
+      height: 27.7cm;
+      margin: auto;
+      padding: 1cm 2.5cm;
+      background-image: url('logo.jpg');
+      background-position: center 0%;
+      background-repeat: no-repeat;
+      background-size: 85%;
+      background-attachment: local;
+      background-blend-mode: lighten;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .firma-sobre-nombre,
+    .firma-fondo,
+    .sello-derecha,
+    .sello2-fondo {
+      position: absolute;
+      pointer-events: none;
+      opacity: 1;
+      z-index: 10;
+    }
+
+
+    .firma-fondo {
+      width: 270px;
+      top: 79%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .sello-derecha {
+      width: 140px;
+      top: 77%;
+      left: 80%;
+      transform: translate(-50%, -50%);
+    }
+
+    .sello2-fondo {
+      width: 180px;
+      top: 77%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+
+  <h2 style="text-align:center;">Certificado de Afiliación</h2>
+
+  <form id="formulario" class="formulario">
+    <h2 style="text-align:center;">Editar documento</h2>
+    <input type="text" id="cedula" placeholder="Número de cédula" required />
+    <input type="text" id="nombre-editable" placeholder="Nombre completo" style="display:none;" />
+    <input type="text" id="cedula-editable" placeholder="Cédula" style="display:none;" />
+    <input type="text" id="fecha-editable" placeholder="Fecha de afiliación" style="display:none;" />
+    <input type="text" id="registro-editable" placeholder="Registro Nº" style="display:none;" />
+    <input type="text" id="folio-editable" placeholder="Folio Nº" style="display:none;" />
+    <input type="text" id="renglon-editable" placeholder="Renglón Nº" style="display:none;" />
+    <input type="text" id="direccion-editable" placeholder="Dirección" style="display:none;" />
+    <button type="submit">Consultar</button>
+  </form>
+
+
+
+  <button id="boton-descarga">Descargar Certificado</button>
+
+  <div id="contenido-certificado"></div>
+
+  <!-- Reemplaza únicamente esta parte final del HTML (desde aquí) -->
+
+  
+<script>
+
+function convertirExcelFecha(numero) {
+  const base = new Date(1900, 0, 1);
+  base.setDate(base.getDate() + parseInt(numero) - 2);
+  return base.toISOString().split('T')[0];
+}
+
+
+
+
+  let baseDatos = [];
+  let personaEncontrada = null;
+
+  fetch("datosafiliados.json")
+    .then(res => res.json())
+    .then(data => { baseDatos = data; })
+    .catch(err => alert("Error cargando JSON: " + err));
+
+  document.getElementById("formulario").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const cedula = document.getElementById("cedula").value.trim().replace(/\./g, "");
+    const persona = baseDatos.find(p => String(p.cedula) === cedula);
+    const contenido = document.getElementById("contenido-certificado");
+    const botonDescarga = document.getElementById("boton-descarga");
+
+    if (persona) {
+      personaEncontrada = persona;
+
+      
+      const convertirExcelFecha = (numero) => {
+  const base = new Date(1900, 0, 1);
+  base.setDate(base.getDate() + parseInt(numero) - 2);
+  return base.toISOString().split('T')[0];
+};
+
+const campos = [
+  ["nombre", persona.nombre],
+  ["cedula", persona.cedula],
+  ["fecha", isNaN(persona.fecha) ? persona.fecha : convertirExcelFecha(persona.fecha)],
+  ["registro", persona.registro],
+  ["folio", persona.folio],
+  ["renglon", persona.renglon],
+  ["direccion", persona.direccion]
+];
+
+
+      campos.forEach(([id, valor]) => {
+  const input = document.getElementById(`${id}-editable`);
+  input.value = valor;
+
+  // ✅ Esta línea se asegura de actualizar también el texto en el certificado
+  const span = document.getElementById(`${id}-cert`);
+  if (span) span.textContent = valor;
+
+  input.style.display = "block";
+});
+
+// Convertir número de Excel a fecha si aplica
+let fechaFinal = isNaN(persona.fecha) ? persona.fecha : convertirExcelFecha(persona.fecha);
+
+// Asegurarse que persona.fecha_afiliacion refleje esa conversión
+persona.fecha_afiliacion = fechaFinal;
+
+    
+
+      contenido.innerHTML = `
+        <div style="text-align:center;font-size:17px;line-height:1.4;">
+          <strong>REPUBLICA DE COLOMBIA</strong><br>
+          <strong>DEPARTAMENTO DEL META</strong><br>
+          <strong>PUERTO GAITÁN – META</strong><br>
+          <strong>JUNTA DE ACCIÓN COMUNAL</strong><br>
+          <strong>ASENTAMIENTO HUMANO BATEAS</strong><br>
+          Personería Jurídica No. 101 del 20 de noviembre de 2.012.
+        </div>
+
+        <div style="text-align: justify; font-size: 9px; line-height: 1.5;">
+          El suscrito presidente del asentamiento humano Bateas, del Municipio de Puerto Gaitán Meta, fundamentado en la ley 1551 del 2012 que modifica el artículo 91 de la ley 136 de 1994, el cual reza en su artículo 91: Funciones. Los Alcaldes ejercerán…y además de estas, en el literal F numeral 6. Con relación a la prosperidad integral de su región; Expedirá la certificación para acreditar la residencia a aquellas personas que residen  en el territorio del área de influencia de los proyectos de exploración y explotación petrolera y minería en general, y que aspiren acceder a labores como mano de  obra no calificada y calificada, Los alcaldes expedirán dichos certificados con base en LOS REGISTROS ELECTORALES O DE SISBEN , ASI COMO LOS REGISTROS DE LOS AFILIADOS DE LAS JUNTAS DE ACCION COMUNAL
+        </div>
+
+        <div style="text-align:center;font-size:18px;line-height:1.5;margin-top:30px;">
+          <span style="font-size:18px;">CONSTANCIA DE AFILIACIÓN</span><br>
+          <strong>La Junta de Acción Comunal del Barrio Bateas</strong><br>
+          HACE CONSTAR:<br>
+          Que la información suministrada reposa en el libro de afiliados:
+        </div>
+
+        <div style="text-align:justify;font-size:17px;line-height:1.5;margin-top:30px;">
+          NOMBRE: <strong id="nombre-cert">${persona.nombre}</strong><br>
+          CÉDULA: <strong id="cedula-cert">${persona.cedula}</strong><br>
+          FECHA DE AFILIACIÓN: <strong id="fecha-cert">${persona.fecha_afiliacion}</strong><br>
+          REGISTRO Nº: <strong id="registro-cert">${persona.registro}</strong><br>
+          FOLIO Nº: <strong id="folio-cert">${persona.folio}</strong><br>
+          RENGLÓN Nº: <strong id="renglon-cert">${persona.renglon}</strong><br>
+          DIRECCIÓN: <strong id="direccion-cert">${persona.direccion}</strong><br><br>
+           La presente constancia se expide a solicitud del interesado, <strong>el día 27 de noviembre de 2024 </strong> y tiene vigencia de 6 meses a partir de la fecha de su expedición.</strong>...
+        </div><br>
+        <br>Atentamente,<br><br><br>
+        <img src="sello.png" class="sello-derecha" alt="Sello de la Junta">
+        
+        <img src="firma.png" class="firma-fondo" alt="Firma digital fondo">
+        <img src="sello2.png" class="sello2-fondo" alt="Sello de respaldo">
+
+        <div style="text-align:center;margin-top:30px;">
+          __________________________<br>
+          <strong>JUAN CARLOS USECHE B</strong><br>
+          Presidente<br>
+          jacbateasgaitan@gmail.com
+        </div>
+
+        <div style="text-align:justify;font-size:12px;line-height:1.3;margin-top:25px;"><br><br>
+         Código penal colombiano. “ley 599 de 2000 art. 287.falsedad material en documento público, el que falsifique documentos públicos que pueda servir de prueba, incurrirá en prisión de 3 a 6 años”. 
+        </div>
+      `;
+
+      contenido.style.visibility = "visible";
+      contenido.style.pointerEvents = "auto";
+      botonDescarga.style.display = "block";
+    } else {
+      alert("❌ Cédula no registrada.");
+      ["nombre", "cedula", "fecha", "registro", "folio", "renglon", "direccion"].forEach(id => {
+        document.getElementById(`${id}-editable`).style.display = "none";
+      });
+      contenido.innerHTML = "";
+      contenido.style.visibility = "hidden";
+      contenido.style.pointerEvents = "none";
+      botonDescarga.style.display = "none";
+      personaEncontrada = null;
+    }
+  });
+
+  ["nombre", "cedula", "fecha", "registro", "folio", "renglon", "direccion"].forEach(id => {
+    const input = document.getElementById(`${id}-editable`);
+    input.addEventListener("input", function () {
+      const campo = document.getElementById(`${id}-cert`);
+      if (campo) campo.textContent = this.value;
+    });
+  });
+
+  // ✅ Aquí el bloque que genera el nombre personalizado con nombre y cédula
+  document.getElementById("boton-descarga").addEventListener("click", function () {
+    if (!personaEncontrada) return;
+    const contenido = document.getElementById("contenido-certificado");
+
+    const nombreLimpio = personaEncontrada.nombre.trim().replace(/\s+/g, "_").toUpperCase();
+    const nombreArchivo = `certificado_${personaEncontrada.cedula}_${nombreLimpio}.png`;
+
+    html2canvas(contenido).then(canvas => {
+      canvas.toBlob(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = nombreArchivo;
+        link.click();
+      }, 'image/png');
+    }).catch(err => alert("Error al generar la imagen: " + err));
+  });
+</script>
+<!-- Hasta aquí termina el <script> -->
+
+</body>
+</html>
