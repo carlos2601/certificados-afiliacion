@@ -120,12 +120,26 @@
 </head>
 <body>
 
-<div id="login" style="background: white; padding: 30px 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; margin: 30px auto;">
-  <h2 style="margin-bottom: 20px;">Iniciar Sesión</h2>
-  <input type="text" id="usuario" placeholder="Usuario autorizado" style="width:100%; padding:10px 12px; margin:10px 0; border:1px solid #ccc; border-radius:6px; font-size:14px;"><br>
-  <input type="password" id="clave" placeholder="Contraseña" style="width:100%; padding:10px 12px; margin:10px 0; border:1px solid #ccc; border-radius:6px; font-size:14px;"><br>
-  <button onclick="verificarAcceso()" style="background-color:#005baa; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-size:14px;">Ingresar</button>
-</div>
+  <div id="login" style="background: white; padding: 25px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 90%; width: 400px; margin: 30px auto;">
+    <h2 style="margin-bottom: 20px;">Iniciar Sesión</h2>
+    <form onsubmit="verificarAcceso(); return false;" style="display: flex; flex-direction: column;">
+      <input type="text" id="usuario" name="username" placeholder="Usuario autorizado" autocomplete="username" required
+        style="width:100%; padding:10px 12px; margin:10px 0; border:1px solid #ccc; border-radius:6px; font-size:14px;">
+      <input type="password" id="clave" name="password" placeholder="Contraseña" autocomplete="current-password" required
+        style="width:100%; padding:10px 12px; margin:10px 0; border:1px solid #ccc; border-radius:6px; font-size:14px;">
+      <button type="submit"
+        style="background-color:#005baa; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-size:14px;">Ingresar</button>
+    </form>
+  </div>
+  
+
+
+
+
+
+
+
+
 
 <script>
   const credenciales = {
@@ -153,7 +167,7 @@
 
 
   <form id="formulario" class="formulario">
-    <h2 style="text-align:center;">Editar documento</h2>
+    <h2 id="titulo-formulario" style="text-align:center;">Buscar documento</h2>
     <input type="text" id="cedula" placeholder="Número de cédula" required />
     <input type="text" id="nombre-editable" placeholder="Nombre completo" style="display:none;" />
     <input type="text" id="cedula-editable" placeholder="Cédula" style="display:none;" />
@@ -201,6 +215,8 @@ function convertirExcelFecha(numero) {
     const botonDescarga = document.getElementById("boton-descarga");
 
     if (persona) {
+      document.getElementById("titulo-formulario").textContent = "Editar documento";
+
       personaEncontrada = persona;
 
       
